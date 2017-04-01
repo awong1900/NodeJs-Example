@@ -1,17 +1,17 @@
 ﻿//**********************************************************************************//
 //    Copyright (c) Microsoft. All rights reserved.
-//    
+//
 //    MIT License
-//    
+//
 //    You may obtain a copy of the License at
 //    http://opensource.org/licenses/MIT
-//    
-//    THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, 
-//    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-//    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
-//    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
+//
+//    THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND,
+//    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+//    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+//    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+//    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 //    OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //**********************************************************************************//
@@ -21,9 +21,8 @@ var wsClient = require('websocket').client;
 var fs = require('fs');
 var streamBuffers = require('stream-buffers');
 
-var azureDataMarketClientId = '[Azure Data Market client id]';
-var azureDataMarketClientSecret = '[Azure Data Market client secret]';
-var speechTranslateUrl = 'wss://dev.microsofttranslator.com/speech/translate?api-version=1.0&from=en&to=fr';
+var apikey = 'ebab52986ebf4b869d5f760c06753ce3';  // find on your azure cognitive service account on potal
+var speechTranslateUrl = 'wss://dev.microsofttranslator.com/speech/translate?api-version=1.0&from=en&to=zh-Hans'; // change to=fr translate to french
 
 // input wav file is in PCM 16bit, 16kHz, mono with proper WAV header
 var file = 'helloworld.wav';
@@ -32,7 +31,7 @@ var file = 'helloworld.wav';
 request.get({
     url: 'https://dev.microsofttranslator.com/languages?api-version=1.0&scope=text,tts,speech',
     headers: {
-        'Accept-Language': 'fr' // the language names will be localized to the 'Accept-Language'
+        'Accept-Language': 'en' // the language names will be localized to the 'Accept-Language'
     }
 },
 function (error, response, body) {
@@ -66,7 +65,7 @@ function (error, response, body) {
         var textLang = jsonBody.text;
         for (var langCode in textLang) {
             var item = {
-                name : textLang[langCode].name, 
+                name : textLang[langCode].name,
                 code : langCode
             };
             
@@ -93,23 +92,17 @@ function (error, response, body) {
 // speech translalate api
 
 // get Azure Data Market Access Token
-request.post(
-	'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13',
-	{
-		form : {
-			grant_type : 'client_credentials',
-			client_id : azureDataMarketClientId,
-			client_secret : azureDataMarketClientSecret,
-			scope : 'http://api.microsofttranslator.com'
-		}
-	},
-	
+request.post({
+    	url: 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken',
+        headers: {
+            'Ocp-Apim-Subscription-Key': apikey
+        }
+    },
 	// once we get the access token, we hook up the necessary websocket events for sending audio and processing the response
 	function (error, response, body) {
 		if (!error && response.statusCode == 200) {
-			
 			// parse and get the acces token
-			var accessToken = JSON.parse(body).access_token;
+            var accessToken = body
 			
 			// connect to the speech translate api
 			var ws = new wsClient();
@@ -142,8 +135,10 @@ request.post(
 			// connect to the service
 			ws.connect(speechTranslateUrl, null, null, { 'Authorization' : 'Bearer ' + accessToken });
 
-		}
-	}
+		} else {
+            console.log(error);
+        }
+    }
 );
 
 // process the respond from the service
@@ -164,7 +159,7 @@ function sendData(connection, filename) {
 	
 	// the streambuffer will raise the 'data' event based on the frequency and chunksize
 	var myReadableStreamBuffer = new streamBuffers.ReadableStreamBuffer({
-		frequency: 100,   // in milliseconds. 
+		frequency: 100,   // in milliseconds.
 		chunkSize: 32000  // 32 bytes per millisecond for PCM 16 bit, 16 khz, mono.  So we are sending 1 second worth of audio every 100ms
 	});
 	
