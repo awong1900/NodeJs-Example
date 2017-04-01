@@ -6,19 +6,19 @@ The sample code is designed to illustrate the 2 methods supported in the Microso
 
 ## Instructions
 1. To get the package dependencies, first execute "npm install"
-2. Edit app.js and enter your Azure Data Market ClientID and Client Secret
-var azureDataMarketClientId = '[Azure Data Market client id]';
-var azureDataMarketClientSecret = '[Azure Data Market client secret]';
+2. Edit app.js and enter your Azure Speech Translation API Key
+var apikey = '[Azure Speech Translation API Key]';
+3. Setting translate language
 3. Run by executing "node app.js"
 
-If you want to change the audio file, simply change the line 
+If you want to change the audio file, simply change the line
 var file = 'helloworld.wav';
 
 ## Dependencies
 request, stream-buffers, websocket
 
-####Getting Started
+#### Getting Started
 -You will need to setup a subscription with Microsoft Translator. [Click Here] (https://www.microsoft.com/en-us/translator/default.aspx) to get started.
 
--Speech API documentation can be [found here.] (https://docs.microsofttranslator.com/)
+-Speech API documentation can be [found here.] (http://docs.microsofttranslator.com/speech-translate.html#!/Speech_translation/SpeechTranslate_Get)
 This app posts translations to a webservice. You will need a website to post to, or change the app to post locally to the UIWebView.
