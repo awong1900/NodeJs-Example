@@ -21,7 +21,7 @@ var wsClient = require('websocket').client;
 var fs = require('fs');
 var streamBuffers = require('stream-buffers');
 
-var apikey = 'ebab52986ebf4b869d5f760c06753ce3';  // find on your azure cognitive service account on potal
+var apikey = 'your-api-key';  // find on your azure cognitive service account on potal
 var speechTranslateUrl = 'wss://dev.microsofttranslator.com/speech/translate?api-version=1.0&from=en&to=zh-Hans'; // change to=fr translate to french
 
 // input wav file is in PCM 16bit, 16kHz, mono with proper WAV header
